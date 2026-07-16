@@ -4,3 +4,4 @@
 
 - added folder video-processing-service, then npm init (could've done npm init -y to autoaccept everything)
 - installed express (and --save-dev typescript ts-node)
+- npm install --save-dev @types/node @types/express
