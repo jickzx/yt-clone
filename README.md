@@ -9,3 +9,4 @@
 - did: npm install --save-dev @types/fluent-ffmpeg
 
 starts up via npm run start
+installed thunder client
