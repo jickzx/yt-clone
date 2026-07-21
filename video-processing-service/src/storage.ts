@@ -25,14 +25,18 @@ export function setupDirectories() {
  */
 
 export function convertVideo(rawVideoName: string, processedVideoName: string) {
-    ffmpeg(`${localRawVideoPath}/${localProcessedVideoPath}`)
-    .outputOptions("-vf", "scale=-1:360") // video file, scale 1 to 360p
-    .on("end", () => {
-        res.status(200).send("Video processing finished successfully.")
-    })
-    .on("error", (err) => {
-        console.log(`An error occured: ${err.message}`);
-        res.status(500).send(`500 Internal Server Error: ${err.message}`);
-    })
-    .save(outputFilePath);
+    return new Promise<void>((resolve,reject) => { // at runtime, resolves/rejects a promise which throws an error or return a value
+        ffmpeg(`${localRawVideoPath}/${rawVideoName}`)
+        .outputOptions("-vf", "scale=-1:360") // video file, scale 1 to 360p
+        .on("end", () => {
+            console.log("Video processing finished successfully.");
+            resolve();
+        })
+        .on("error", (err) => {
+            console.log(`An error occured: ${err.message}`);
+            reject(err);
+        })
+        .save(`${localProcessedVideoPath}/${processedVideoName}`);
+    });
+
 }
