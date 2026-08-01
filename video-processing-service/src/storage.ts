@@ -51,4 +51,6 @@ export async function downloadRawVideo(fileName: string) {
     )
 }
 
-export aysnc function uploadProcessedVideo(fileName: string) {}
+export async function uploadProcessedVideo(fileName: string) {
+    const bucket = storage.bucket(processedVideoBucketName);
+}
