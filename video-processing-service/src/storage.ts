@@ -50,3 +50,5 @@ export async function downloadRawVideo(fileName: String) {
         `gs://${rawVideoBucketName}/${fileName} downloaded to ${localRawVideoPath}/${fileName}.`
     )
 }
+
+export aysnc function uploadProcessedVideo(fileName: string) {}
