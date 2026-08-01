@@ -41,7 +41,7 @@ export function convertVideo(rawVideoName: string, processedVideoName: string) {
 
 }
 
-export async function downloadRawVideo(fileName: String) {
+export async function downloadRawVideo(fileName: string) {
     await storage.bucket(rawVideoBucketName)
         .file(fileName)
         .download({ destination: `${localRawVideoPath}/${fileName}`});
