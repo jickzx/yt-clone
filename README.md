@@ -10,3 +10,5 @@
 
 starts up via npm run start
 installed thunder client
+
+took a break because 1. lazy. i cant really afford to be lazy but ill get back to this soon
