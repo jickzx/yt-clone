@@ -54,5 +54,18 @@ export async function downloadRawVideo(fileName: string) {
 export async function uploadProcessedVideo(fileName: string) {
     const bucket = storage.bucket(processedVideoBucketName);
 
-    bucket.upload(`${localProcessedVideoPath}/${fileName}`,)
+    bucket.upload(`${localProcessedVideoPath}/${fileName}`, {
+        destination: fileName
+    }); 
+    console.log(
+        `gs://${localProcessedVideoPath}/${fileName} uploaded to ${processedVideoBucketName}/${fileName}.`
+    );
+
+    await bucket.file(fileName).makePublic();
+}
+
+function deleteFile(filePath: string): Promise<void> {
+    return new Promise((resolve, reject) => {
+
+    });
 }
