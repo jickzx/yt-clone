@@ -68,6 +68,9 @@ export function deleteRawVideo(fileName: string) {
     return deleteFile(`${localRawVideoPath}/${fileName}`);
 }
 
+export function deleteProcessedVideo(fileName: string) {
+    return deleteFile(`${localProcessedVideoPath}/${fileName}`);
+}
 
 /**
 * @param filePath - The path of the file to delete.
