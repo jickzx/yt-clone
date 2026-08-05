@@ -100,7 +100,7 @@ Ensures a directory exists, creating if necessary.
 
 function ensureDirectoryExists(dirPath: string) {
     if (!fs.existsSync(dirPath)) {
-        fs.mkdirSync(dirPath, {recursive: true});
+        fs.mkdirSync(dirPath, {recursive: true}); // recursive true: enables creating nested dictionary
         console.log(`Directory created at ${dirPath}`);
     }
 }
