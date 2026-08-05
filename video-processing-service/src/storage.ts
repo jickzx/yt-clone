@@ -64,6 +64,11 @@ export async function uploadProcessedVideo(fileName: string) {
     await bucket.file(fileName).makePublic();
 }
 
+export function deleteRawVideo(fileName: string) {
+    return deleteFile(`${localRawVideoPath}/${fileName}`);
+}
+
+
 /**
 * @param filePath - The path of the file to delete.
 * @returns A promise that resolves when the file has been deleted.
