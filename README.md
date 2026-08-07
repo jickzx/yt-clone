@@ -1,5 +1,7 @@
 # YT-Clone
 
+might not continue with this. because i need to use firestore and im a brokie plus i want this to be maintained forever
+
 ## steps
 
 - added folder video-processing-service, then npm init (could've done npm init -y to autoaccept everything)
