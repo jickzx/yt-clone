@@ -1,7 +1,5 @@
 # YT-Clone
 
-might not continue with this. because i need to use firestore and im a brokie plus i want this to be maintained forever
-
 ## steps
 
 - added folder video-processing-service, then npm init (could've done npm init -y to autoaccept everything)
@@ -12,8 +10,6 @@ might not continue with this. because i need to use firestore and im a brokie pl
 
 starts up via npm run start
 installed thunder client
-
-took a break because 1. lazy. i cant really afford to be lazy but ill get back to this soon
 
 ## so, what does this yt clone need?
 
