@@ -11,6 +11,8 @@
 starts up via npm run start
 installed thunder client
 
+need to uninstall google cloud now that i am swapping to supabase
+
 ## so, what does this yt clone need?
 
 - upload a video, duh
