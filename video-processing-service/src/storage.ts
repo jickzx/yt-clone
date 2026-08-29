@@ -1,9 +1,12 @@
 // gcs file interactions & local file interactions 
 
-import { Storage } from '@google-cloud/storage';
+// import { Storage } from '@google-cloud/storage'; - no longer in use.
+import {createClient} from '@supabase/supabase-js';
 import fs from 'fs';
+import { readFile, writeFile, unlink, mkdir } from "node:fs/promises";
 import ffmpeg from 'fluent-ffmpeg';
 
+const supabaseUrl = process.env.SUPABASE_URL;
 const storage = new Storage();
 
 const rawVideoBucketName = "jickzx-raw-videos";
