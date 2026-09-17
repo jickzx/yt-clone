@@ -13,6 +13,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 var _a, _b;
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.rawVideoBucketName = void 0;
 exports.setupDirectories = setupDirectories;
 exports.convertVideo = convertVideo;
 exports.downloadRawVideo = downloadRawVideo;
@@ -20,23 +21,28 @@ exports.uploadProcessedVideo = uploadProcessedVideo;
 exports.deleteRawVideo = deleteRawVideo;
 exports.deleteProcessedVideo = deleteProcessedVideo;
 const supabase_js_1 = require("@supabase/supabase-js");
-const promises_1 = require("node:fs/promises");
+const dotenv_1 = __importDefault(require("dotenv"));
 const fluent_ffmpeg_1 = __importDefault(require("fluent-ffmpeg"));
+const promises_1 = require("node:fs/promises");
+const node_path_1 = __importDefault(require("node:path"));
+// Support running npm from either the repository root or this service folder.
+dotenv_1.default.config({ path: node_path_1.default.resolve(process.cwd(), ".env"), quiet: true });
+dotenv_1.default.config({ path: node_path_1.default.resolve(process.cwd(), "../.env"), quiet: true });
 const supabaseUrl = process.env.SUPABASE_URL;
-const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
-if (!supabaseUrl || !serviceRoleKey) {
-    throw new Error("SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY must be configured.");
+const supabaseSecretKey = process.env.SUPABASE_SECRET_KEY;
+if (!supabaseUrl || !supabaseSecretKey) {
+    throw new Error("SUPABASE_URL and SUPABASE_SECRET_KEY must be configured.");
 }
-const supabase = (0, supabase_js_1.createClient)(supabaseUrl, serviceRoleKey, {
+const supabase = (0, supabase_js_1.createClient)(supabaseUrl, supabaseSecretKey, {
     auth: {
         persistSession: false,
         autoRefreshToken: false,
     },
 });
-const rawVideoBucket = (_a = process.env.SUPABASE_RAW_VIDEO_BUCKET) !== null && _a !== void 0 ? _a : "raw-videos";
-const processedVideoBucket = (_b = process.env.SUPABASE_PROCESSED_VIDEO_BUCKET) !== null && _b !== void 0 ? _b : "processed-videos";
-const localRawVideoPath = "./raw-videos";
-const localProcessedVideoPath = "./processed-videos";
+exports.rawVideoBucketName = (_a = process.env.SUPABASE_RAW_VIDEO_BUCKET) !== null && _a !== void 0 ? _a : "raw-videos";
+const processedVideoBucketName = (_b = process.env.SUPABASE_PROCESSED_VIDEO_BUCKET) !== null && _b !== void 0 ? _b : "processed-videos";
+const localRawVideoPath = node_path_1.default.resolve(process.cwd(), "raw-videos");
+const localProcessedVideoPath = node_path_1.default.resolve(process.cwd(), "processed-videos");
 function setupDirectories() {
     return __awaiter(this, void 0, void 0, function* () {
         yield Promise.all([
@@ -45,50 +51,53 @@ function setupDirectories() {
         ]);
     });
 }
-function convertVideo(rawVideoName, processedVideoName) {
+function convertVideo(localRawVideoName, localProcessedVideoName) {
     return new Promise((resolve, reject) => {
-        (0, fluent_ffmpeg_1.default)(`${localRawVideoPath}/${rawVideoName}`)
-            .outputOptions("-vf", "scale=-1:360")
-            .on("end", resolve)
-            .on("error", reject)
-            .save(`${localProcessedVideoPath}/${processedVideoName}`);
+        (0, fluent_ffmpeg_1.default)(node_path_1.default.join(localRawVideoPath, localRawVideoName))
+            .videoCodec("libx264")
+            .audioCodec("aac")
+            .outputOptions("-vf", "scale=-2:360", "-movflags", "+faststart")
+            .format("mp4")
+            .on("end", () => resolve())
+            .on("error", (error) => reject(error))
+            .save(node_path_1.default.join(localProcessedVideoPath, localProcessedVideoName));
     });
 }
-function downloadRawVideo(fileName) {
+function downloadRawVideo(storageObjectName, localFileName) {
     return __awaiter(this, void 0, void 0, function* () {
         const { data, error } = yield supabase.storage
-            .from(rawVideoBucket)
-            .download(fileName);
+            .from(exports.rawVideoBucketName)
+            .download(storageObjectName);
         if (error) {
-            throw new Error(`Could not download ${fileName}: ${error.message}`);
+            throw new Error(`Could not download ${storageObjectName}: ${error.message}`);
         }
         const contents = Buffer.from(yield data.arrayBuffer());
-        yield (0, promises_1.writeFile)(`${localRawVideoPath}/${fileName}`, contents);
+        yield (0, promises_1.writeFile)(node_path_1.default.join(localRawVideoPath, localFileName), contents);
     });
 }
-function uploadProcessedVideo(fileName) {
+function uploadProcessedVideo(storageObjectName, localFileName) {
     return __awaiter(this, void 0, void 0, function* () {
-        const contents = yield (0, promises_1.readFile)(`${localProcessedVideoPath}/${fileName}`);
+        const contents = yield (0, promises_1.readFile)(node_path_1.default.join(localProcessedVideoPath, localFileName));
         const { error } = yield supabase.storage
-            .from(processedVideoBucket)
-            .upload(fileName, contents, {
+            .from(processedVideoBucketName)
+            .upload(storageObjectName, contents, {
             contentType: "video/mp4",
             cacheControl: "3600",
             upsert: true,
         });
         if (error) {
-            throw new Error(`Could not upload ${fileName}: ${error.message}`);
+            throw new Error(`Could not upload ${storageObjectName}: ${error.message}`);
         }
     });
 }
-function deleteRawVideo(fileName) {
+function deleteRawVideo(localFileName) {
     return __awaiter(this, void 0, void 0, function* () {
-        yield deleteFile(`${localRawVideoPath}/${fileName}`);
+        yield deleteFile(node_path_1.default.join(localRawVideoPath, localFileName));
     });
 }
-function deleteProcessedVideo(fileName) {
+function deleteProcessedVideo(localFileName) {
     return __awaiter(this, void 0, void 0, function* () {
-        yield deleteFile(`${localProcessedVideoPath}/${fileName}`);
+        yield deleteFile(node_path_1.default.join(localProcessedVideoPath, localFileName));
     });
 }
 function deleteFile(filePath) {

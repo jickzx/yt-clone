@@ -1,5 +1,5 @@
 # Stage 1: Build stage
-FROM node:18 AS builder
+FROM node:22 AS builder
 
 # Set the working directory in the container to /app
 WORKDIR /app
@@ -8,7 +8,7 @@ WORKDIR /app
 COPY package*.json ./
 
 # Install any needed packages specified in package.json
-RUN npm install
+RUN npm ci
 
 # Bundle app source inside the docker image
 COPY . .
@@ -17,7 +17,7 @@ COPY . .
 RUN npm run build
 
 # Stage 2: Production stage
-FROM node:18
+FROM node:22
 
 # Install ffmpeg in the container
 RUN apt-get update && apt-get install -y ffmpeg
@@ -29,7 +29,7 @@ WORKDIR /app
 COPY package*.json ./
 
 # Install only production dependencies
-RUN npm install --only=production
+RUN npm ci --omit=dev
 
 # Copy built app from the builder stage
 COPY --from=builder /app/dist ./dist
